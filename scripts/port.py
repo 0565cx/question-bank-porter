@@ -90,18 +90,21 @@ def classify(name):
     # 语言问题审核（优先判断，含「语言」关键词）
     if "语言" in n or "题干语言" in n:
         if "重出结果" in n or "重出答案" in n or "重新出" in n:
-            return "7_语言问题审核/4_重出结果"
+            return "8_语言问题审核/4_重出结果"
         if "待重出" in n:
-            return "7_语言问题审核/3_待重出"
+            return "8_语言问题审核/3_待重出"
         if "一审结果" in n or "审核结果" in n or "一审" in n:
-            return "7_语言问题审核/2_一审结果"
-        return "7_语言问题审核/1_待语言问题审核"
+            return "8_语言问题审核/2_一审结果"
+        return "8_语言问题审核/1_待语言问题审核"
+    # 收尾题目（知识审核最后一轮重新出的题目，先于「重新出题」判断）
+    if "收尾" in n:
+        return "6_收尾题目"
     # 看板
     if "dashboard" in n.lower() or "看板" in n:
         return "5_审核结果看板"
     # 汇总（最终保留）
     if "汇总" in n or "最终保留" in n or "审核通过" in n:
-        return "6_汇总"
+        return "7_汇总"
     # 保留题目
     if "可保留" in n or "保留的题目" in n or "保留题目" in n:
         return "2_保留题目"
@@ -149,14 +152,16 @@ def normalize_name(orig, sub, post, folder, rnd):
     elif folder == "4_需重新出答案":
         newname = (f"{rnd}轮_{sub}_{post}_重新出答案{ext}" if rnd
                    else f"{sub}_{post}_重新出答案{ext}")
-    elif folder == "6_汇总":
+    elif folder == "6_收尾题目":
+        newname = f"{sub}-{post}_收尾题目{ext}"
+    elif folder == "7_汇总":
         newname = f"{sub}-{post}_最终汇总保留题目{ext}"
-    elif folder.startswith("7_语言问题审核"):
+    elif folder.startswith("8_语言问题审核"):
         lang_word = {
-            "7_语言问题审核/1_待语言问题审核": "待语言问题审核",
-            "7_语言问题审核/2_一审结果": "语言问题一审结果",
-            "7_语言问题审核/3_待重出": "语言问题待重出",
-            "7_语言问题审核/4_重出结果": "语言问题重出结果",
+            "8_语言问题审核/1_待语言问题审核": "待语言问题审核",
+            "8_语言问题审核/2_一审结果": "语言问题一审结果",
+            "8_语言问题审核/3_待重出": "语言问题待重出",
+            "8_语言问题审核/4_重出结果": "语言问题重出结果",
         }[folder]
         newname = f"{sub}-{post}_{lang_word}{ext}"
     else:
