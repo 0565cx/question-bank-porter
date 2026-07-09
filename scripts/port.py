@@ -10,8 +10,8 @@
   审核看板（roundN_dashboard.html）       → <岗位>/5_审核结果看板/
   收尾题目（…收尾/收尾题目/GPT审核通过）   → <岗位>/6_收尾题目/
   知识审核后汇总（…最终汇总/汇总保留/知识审核后汇总） → <岗位>/7_知识审核后汇总/
-  语言问题审核结果（含「语言」，非重出）   → <岗位>/8_语言问题审核/（改名为 语言问题审核结果）
-  语言问题重出结果（含「语言」且「重出」） → <岗位>/8_语言问题审核/（改名为 语言问题重出结果）
+  语言问题审核结果（含「语言」，非重出）   → <岗位>/8_语言问题审核/1_审核结果/
+  语言问题重出结果（含「语言」且「重出」） → <岗位>/8_语言问题审核/2_重出结果/
   最终汇总（…题库）                       → <岗位>/9_最终汇总/
 
 用法：
@@ -87,11 +87,11 @@ def round_of(name):
 def classify(name):
     """返回目标相对文件夹（相对岗位目录）。无法识别返回 None。"""
     n = name
-    # 语言问题审核（优先判断，含「语言」关键词）；直接放入 8_语言问题审核/
+    # 语言问题审核（优先判断，含「语言」关键词）
     if "语言" in n or "题干语言" in n:
         if "重出" in n or "重新出" in n:
-            return "8_语言问题审核"  # 语言问题重出结果
-        return "8_语言问题审核"  # 语言问题审核结果
+            return "8_语言问题审核/2_重出结果"
+        return "8_语言问题审核/1_审核结果"
     # 看板
     if "dashboard" in n.lower() or "看板" in n:
         return "5_审核结果看板"
@@ -157,8 +157,8 @@ def normalize_name(orig, sub, post, folder, rnd):
         newname = f"{sub}-{post}_知识审核后汇总保留题目{ext}"
     elif folder == "9_最终汇总":
         newname = f"{sub}-{post}_题库{ext}"
-    elif folder == "8_语言问题审核":
-        lang_word = "语言问题重出结果" if ("重出" in orig or "重新出" in orig) \
+    elif folder.startswith("8_语言问题审核"):
+        lang_word = "语言问题重出结果" if folder.endswith("2_重出结果") \
             else "语言问题审核结果"
         newname = f"{sub}-{post}_{lang_word}{ext}"
     else:
