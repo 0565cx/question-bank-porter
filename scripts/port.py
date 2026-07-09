@@ -9,11 +9,12 @@
   重新出答案（…重新出答案/重出答案）     → <岗位>/4_需重新出答案/
   审核看板（roundN_dashboard.html）       → <岗位>/5_审核结果看板/
   收尾题目（…收尾/收尾题目/GPT审核通过）   → <岗位>/6_收尾题目/
-  汇总（…汇总/最终保留/最终汇总）         → <岗位>/7_汇总/
+  知识审核后汇总（…知识审核后汇总/汇总）   → <岗位>/7_知识审核后汇总/
   语言-待语言问题审核                     → <岗位>/8_语言问题审核/1_待语言问题审核/
   语言-一审结果                           → <岗位>/8_语言问题审核/2_一审结果/
   语言-待重出                             → <岗位>/8_语言问题审核/3_待重出/
   语言-重出结果                           → <岗位>/8_语言问题审核/4_重出结果/
+  最终汇总（…最终汇总/最终保留）           → <岗位>/9_最终汇总/
 
 用法：
   python port.py --repo <仓库路径> --src <源文件或目录> [--src ...] [--apply]
@@ -103,9 +104,12 @@ def classify(name):
     # 收尾题目（知识审核最后一轮重出，优先于汇总判断）
     if "收尾" in n or "GPT审核通过" in n or n == "GPT审核通过.xlsx":
         return "6_收尾题目"
-    # 汇总（最终保留）
-    if "汇总" in n or "最终保留" in n or "最终汇总" in n:
-        return "7_汇总"
+    # 最终汇总（语言审核也完成后，优先于知识审核后汇总判断）
+    if "最终汇总" in n or "最终保留" in n:
+        return "9_最终汇总"
+    # 知识审核后汇总（知识审核全部轮次完成后保留）
+    if "知识审核后汇总" in n or "汇总" in n:
+        return "7_知识审核后汇总"
     # 保留题目
     if "可保留" in n or "保留的题目" in n or "保留题目" in n:
         return "2_保留题目"
@@ -155,7 +159,9 @@ def normalize_name(orig, sub, post, folder, rnd):
                    else f"{sub}_{post}_重新出答案{ext}")
     elif folder == "6_收尾题目":
         newname = f"{sub}-{post}_收尾题目{ext}"
-    elif folder == "7_汇总":
+    elif folder == "7_知识审核后汇总":
+        newname = f"{sub}-{post}_知识审核后汇总保留题目{ext}"
+    elif folder == "9_最终汇总":
         newname = f"{sub}-{post}_最终汇总保留题目{ext}"
     elif folder.startswith("8_语言问题审核"):
         lang_word = {
